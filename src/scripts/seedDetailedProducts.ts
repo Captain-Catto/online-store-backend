@@ -1,4 +1,5 @@
 import sequelize from "../config/db";
+import { QueryTypes } from "sequelize";
 
 // Cấu hình S3 URLs - THAY ĐỔI URL này theo bucket thực tế của bạn
 const S3_BUCKET_URL = "https://shop-online-images.s3.ap-southeast-2.amazonaws.com";
@@ -271,7 +272,7 @@ export const seedDetailedClothingData = async () => {
         ('${product.name}', '${product.sku}', '${product.description}', '${product.brand}', '${product.material}', ${product.featured}, '${product.name.toLowerCase()}', NOW(), NOW())
       `, { transaction });
 
-      const [[{ productId }]] = await sequelize.query<{ productId: number }>(`SELECT LAST_INSERT_ID() as productId`, { transaction });
+      const [[{ productId }]] = await sequelize.query<{ productId: number }>(`SELECT LAST_INSERT_ID() as productId`, { type: QueryTypes.SELECT, transaction });
 
       // Liên kết với categories
       for (const categoryName of product.categories) {
@@ -296,7 +297,7 @@ export const seedDetailedClothingData = async () => {
           (${productId}, '${variant.color}', ${variant.price}, ${variant.originalPrice}, NOW(), NOW())
         `, { transaction });
 
-        const [[{ detailId }]] = await sequelize.query<{ detailId: number }>(`SELECT LAST_INSERT_ID() as detailId`, { transaction });
+        const [[{ detailId }]] = await sequelize.query<{ detailId: number }>(`SELECT LAST_INSERT_ID() as detailId`, { type: QueryTypes.SELECT, transaction });
 
         // Thêm hình ảnh cho variant
         for (let i = 0; i < variant.images.length; i++) {
