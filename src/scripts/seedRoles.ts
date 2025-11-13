@@ -4,9 +4,9 @@ export const seedRoles = async () => {
   try {
     console.log("🌱 Bắt đầu seed roles...");
 
-    // Tạo các role cơ bản (bỏ description vì bảng không có cột này)
+    // Tạo các role cơ bản (sử dụng snake_case)
     await sequelize.query(`
-      INSERT IGNORE INTO roles (id, name, createdAt, updatedAt) VALUES
+      INSERT IGNORE INTO roles (id, name, created_at, updated_at) VALUES
       (1, 'Admin', NOW(), NOW()),
       (2, 'Employee', NOW(), NOW()),
       (3, 'Customer', NOW(), NOW())
