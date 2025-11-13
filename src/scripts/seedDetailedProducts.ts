@@ -266,12 +266,12 @@ export const seedDetailedClothingData = async () => {
       console.log(`📦 Đang tạo sản phẩm: ${product.name}`);
 
       // Tạo sản phẩm chính
-      const [productResult] = await sequelize.query(`
+      const [productResult, metadata] = await sequelize.query(`
         INSERT INTO products (name, sku, description, brand, material, featured, tags, createdAt, updatedAt) VALUES
         ('${product.name}', '${product.sku}', '${product.description}', '${product.brand}', '${product.material}', ${product.featured}, '${product.name.toLowerCase()}', NOW(), NOW())
       `, { transaction });
 
-      const productId = (productResult as any).insertId;
+      const productId = (metadata as any).insertId;
 
       // Liên kết với categories
       for (const categoryName of product.categories) {
@@ -291,12 +291,12 @@ export const seedDetailedClothingData = async () => {
 
       // Tạo variants và hình ảnh
       for (const variant of product.variants) {
-        const [detailResult] = await sequelize.query(`
+        const [detailResult, detailMetadata] = await sequelize.query(`
           INSERT INTO product_details (productId, color, price, originalPrice, createdAt, updatedAt) VALUES
           (${productId}, '${variant.color}', ${variant.price}, ${variant.originalPrice}, NOW(), NOW())
         `, { transaction });
 
-        const detailId = (detailResult as any).insertId;
+        const detailId = (detailMetadata as any).insertId;
 
         // Thêm hình ảnh cho variant
         for (let i = 0; i < variant.images.length; i++) {
