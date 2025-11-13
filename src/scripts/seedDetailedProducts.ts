@@ -1,7 +1,7 @@
 import sequelize from "../config/db";
 
 // Cấu hình S3 URLs - THAY ĐỔI URL này theo bucket thực tế của bạn
-const S3_BUCKET_URL = "https://your-bucket-name.s3.amazonaws.com";
+const S3_BUCKET_URL = "https://shop-online-images.s3.ap-southeast-2.amazonaws.com";
 
 // Danh sách sản phẩm với hình ảnh thực tế từ S3
 const productData = [
@@ -249,14 +249,14 @@ export const seedDetailedClothingData = async () => {
     const categoryNames = ["Thời trang nam", "Thời trang nữ", "Áo thun", "Áo sơ mi", "Quần dài", "Áo khoác", "Áo thể thao", "Quần shorts"];
     for (const categoryName of categoryNames) {
       await sequelize.query(`
-        INSERT IGNORE INTO categories (name, slug, description, status, created_at, updated_at) VALUES
-        ('${categoryName}', '${categoryName.toLowerCase().replace(/ /g, "-")}', 'Danh mục ${categoryName}', 'active', NOW(), NOW())
+        INSERT IGNORE INTO categories (name, slug, description, isActive, createdAt, updatedAt) VALUES
+        ('${categoryName}', '${categoryName.toLowerCase().replace(/ /g, "-")}', 'Danh mục ${categoryName}', 1, NOW(), NOW())
       `, { transaction });
     }
 
     // 2. Tạo suitabilities
     await sequelize.query(`
-      INSERT IGNORE INTO suitabilities (name, description, created_at, updated_at) VALUES
+      INSERT IGNORE INTO suitabilities (name, description, createdAt, updatedAt) VALUES
       ('Nam', 'Phù hợp cho nam giới', NOW(), NOW()),
       ('Nữ', 'Phù hợp cho nữ giới', NOW(), NOW())
     `, { transaction });
@@ -267,8 +267,8 @@ export const seedDetailedClothingData = async () => {
 
       // Tạo sản phẩm chính
       const [productResult] = await sequelize.query(`
-        INSERT INTO products (name, sku, description, brand, material, featured, status, tags, created_at, updated_at) VALUES
-        ('${product.name}', '${product.sku}', '${product.description}', '${product.brand}', '${product.material}', ${product.featured}, 'active', '${product.name.toLowerCase()}', NOW(), NOW())
+        INSERT INTO products (name, sku, description, brand, material, featured, tags, createdAt, updatedAt) VALUES
+        ('${product.name}', '${product.sku}', '${product.description}', '${product.brand}', '${product.material}', ${product.featured}, '${product.name.toLowerCase()}', NOW(), NOW())
       `, { transaction });
 
       const productId = (productResult as any).insertId;
@@ -276,15 +276,15 @@ export const seedDetailedClothingData = async () => {
       // Liên kết với categories
       for (const categoryName of product.categories) {
         await sequelize.query(`
-          INSERT INTO product_categories (product_id, category_id, created_at, updated_at) 
+          INSERT INTO product_categories (product_id, category_id, createdAt, updatedAt)
           SELECT ${productId}, id, NOW(), NOW() FROM categories WHERE name = '${categoryName}' LIMIT 1
         `, { transaction });
       }
 
-      // Liên kết với suitabilities  
+      // Liên kết với suitabilities
       for (const suitabilityName of product.suitabilities) {
         await sequelize.query(`
-          INSERT INTO product_suitabilities (product_id, suitability_id, created_at, updated_at)
+          INSERT INTO product_suitabilities (product_id, suitability_id, createdAt, updatedAt)
           SELECT ${productId}, id, NOW(), NOW() FROM suitabilities WHERE name = '${suitabilityName}' LIMIT 1
         `, { transaction });
       }
@@ -292,7 +292,7 @@ export const seedDetailedClothingData = async () => {
       // Tạo variants và hình ảnh
       for (const variant of product.variants) {
         const [detailResult] = await sequelize.query(`
-          INSERT INTO product_details (product_id, color, price, original_price, created_at, updated_at) VALUES
+          INSERT INTO product_details (product_id, color, price, original_price, createdAt, updatedAt) VALUES
           (${productId}, '${variant.color}', ${variant.price}, ${variant.originalPrice}, NOW(), NOW())
         `, { transaction });
 
@@ -301,15 +301,15 @@ export const seedDetailedClothingData = async () => {
         // Thêm hình ảnh cho variant
         for (let i = 0; i < variant.images.length; i++) {
           await sequelize.query(`
-            INSERT INTO product_images (product_detail_id, url, is_main, display_order, created_at, updated_at) VALUES
-            (${detailId}, '${variant.images[i]}', ${i === 0 ? 'true' : 'false'}, ${i}, NOW(), NOW())
+            INSERT INTO product_images (product_detail_id, url, is_main, display_order, createdAt, updatedAt) VALUES
+            (${detailId}, '${variant.images[i]}', ${i === 0 ? 1 : 0}, ${i}, NOW(), NOW())
           `, { transaction });
         }
 
         // Tạo inventory cho tất cả sizes
         for (const size of product.sizes) {
           await sequelize.query(`
-            INSERT INTO product_inventories (product_detail_id, size, stock, created_at, updated_at) VALUES
+            INSERT INTO product_inventories (product_detail_id, size, stock, createdAt, updatedAt) VALUES
             (${detailId}, '${size}', ${product.stock}, NOW(), NOW())
           `, { transaction });
         }
