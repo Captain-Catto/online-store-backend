@@ -272,7 +272,7 @@ export const seedDetailedClothingData = async () => {
         ('${product.name}', '${product.sku}', '${product.description}', '${product.brand}', '${product.material}', ${product.featured}, '${product.name.toLowerCase()}', NOW(), NOW())
       `, { transaction });
 
-      const [[{ productId }]] = await sequelize.query<{ productId: number }>(`SELECT LAST_INSERT_ID() as productId`, { type: QueryTypes.SELECT, transaction });
+      const [{ productId }] = await sequelize.query<{ productId: number }>(`SELECT LAST_INSERT_ID() as productId`, { type: QueryTypes.SELECT, transaction }) as [{ productId: number }];
 
       // Liên kết với categories
       for (const categoryName of product.categories) {
@@ -297,7 +297,7 @@ export const seedDetailedClothingData = async () => {
           (${productId}, '${variant.color}', ${variant.price}, ${variant.originalPrice}, NOW(), NOW())
         `, { transaction });
 
-        const [[{ detailId }]] = await sequelize.query<{ detailId: number }>(`SELECT LAST_INSERT_ID() as detailId`, { type: QueryTypes.SELECT, transaction });
+        const [{ detailId }] = await sequelize.query<{ detailId: number }>(`SELECT LAST_INSERT_ID() as detailId`, { type: QueryTypes.SELECT, transaction }) as [{ detailId: number }];
 
         // Thêm hình ảnh cho variant
         for (let i = 0; i < variant.images.length; i++) {
