@@ -4,12 +4,12 @@ export const seedRoles = async () => {
   try {
     console.log("🌱 Bắt đầu seed roles...");
 
-    // Tạo các role cơ bản
+    // Tạo các role cơ bản (bỏ description vì bảng không có cột này)
     await sequelize.query(`
-      INSERT IGNORE INTO roles (id, name, description, createdAt, updatedAt) VALUES
-      (1, 'Admin', 'Quản trị viên hệ thống', NOW(), NOW()),
-      (2, 'Employee', 'Nhân viên', NOW(), NOW()),
-      (3, 'Customer', 'Khách hàng', NOW(), NOW())
+      INSERT IGNORE INTO roles (id, name, createdAt, updatedAt) VALUES
+      (1, 'Admin', NOW(), NOW()),
+      (2, 'Employee', NOW(), NOW()),
+      (3, 'Customer', NOW(), NOW())
     `);
 
     console.log("✅ Seed roles thành công!");
