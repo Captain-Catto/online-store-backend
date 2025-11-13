@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Users from "../models/Users";
 import RefreshToken from "../models/RefreshToken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import UserAddress from "../models/UserAddress";
 import Role from "../models/Role";
